@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>movie description</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+</head>
+
+<style type="text/css">
+
+	.navbar{
+		background-color: #032541;
+	
+	}
+	.search{
+		margin-top: 30px;
+
+		padding-top: 10px;
+	}
+	.search-bar{
+		width: 85%;
+		height: 50px;
+		border: 1px;
+		border-top-left-radius: 30px;
+		border-bottom-left-radius: 30px;
+	}
+	.btn-search{
+		width: 100px;
+		height: 50px;
+		border: 1px;
+		border-top-right-radius: 30px;
+		border-bottom-right-radius: 30px;
+		background-color: background: #1D976C;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to right, #93F9B9, #1D976C);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to right, #93F9B9, #1D976C); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+	}
+	.navbar-btn{
+		width: 55px; 
+		height: 20px; 
+		margin-top: 8px;
+		margin-left: -10px;
+		margin-right: 20px;
+		border: 1px;
+		border-radius: 10px;
+		color: background: #2193b0;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to right, #6dd5ed, #2193b0);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to right, #6dd5ed, #2193b0); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+	}
+	.navbar-nav .fas{
+		font-size: 20px;
+	}
+	.jumbotron{
+		background-image: linear-gradient(rgba(0,0,0,0.5),#032541),url('https://image.tmdb.org/t/p/w500/inJjDhCjfhh3RtrJWBmmDqeuSYC.jpg');
+		background-repeat: no-repeat;
+		background-size: cover;
+
+		height: 550px;
+
+	}
+	.jumbotron .icon .fas{
+		border: 1px solid #032541;
+		border-width: 20px;
+		border-radius: 50%;
+		font-size: 10px;
+
+	}
+	.jumbotron .icon .fas:hover{
+		cursor: pointer;
+	}
+	.jumbotron .icon .Play:hover{
+		cursor: pointer;
+		color: #ddd;
+	}
+
+		
+
+
+	
+</style>
+
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		var url = window.location.search;
+		var urlParams = new URLSearchParams(url);
+		var movie_id = urlParams.get('id');
+
+		$.ajax({
+			url: `https://api.themoviedb.org/3/movie/${movie_id}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US`,
+			type : 'GET',
+			success: function(data){
+				var backdrop_path = 'https://image.tmdb.org/t/p/w500' +  data.backdrop_path;
+				var poster_path = 'https://image.tmdb.org/t/p/w500' + data.poster_path;
+				var movie_name = data.title;
+				var release_date = data.release_date;
+				var runtime = data.runtime;
+				var genres = data.genres
+				var tagline = data.tagline;
+				var overview = data.overview;
+
+
+				$('#movie-name').html(movie_name);
+
+				$('.jumbotron').css('background-image',`linear-gradient(rgba(0,0,0,0.5),#032541),url(${backdrop_path})`);
+
+				$('#poster').html(`<img src="${poster_path}" style="width: 100%; height: 430px; border-radius: 10px; box-shadow: 50px 5px 100px 20px #000;">`);
+				$('#release-date').html(release_date);
+				$('#runtime').html(runtime + " min");
+				$('#tagline').html(tagline);
+				$('#overview').html(overview);
+
+				var genres = '';
+
+				for(var i=0; i<data.genres.length; i++){
+					genres = genres + data.genres[i].name + ' ';
+				}
+
+				$('#genres').html(genres);
+				
+
+				$.ajax({
+					url: `https://api.themoviedb.org/3/movie/${movie_id}/similar?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US`,
+					type : 'GET',
+					success: function(data){
+					    for(var i = 0; i<6; i++){
+
+					        var title = data.results[i].title;
+					        var release_date = data.results[i].release_date;
+					        var poster_url = 'https://image.tmdb.org/t/p/w500' + data.results[i].poster_path;
+					        var movie_id = data.results[i].id;
+
+
+					         var output = `
+					          <div class="col-2">
+					          <img src="${poster_url}" style="width: 100%; height: 250px;">
+					           <a href="movie_description.html?id=${movie_id}"><h5>${title}</h5></a>
+					           <p class="text-muted">${release_date}</p>
+					           </div>
+					            `;
+					         $('#display-movies').append(output);
+				
+				         }
+					},
+					error: function(error){
+						console.log(error);
+					}
+				})
+			},
+			error: function(error){
+				console.log(error);
+			}
+		})
+	})
+
+</script>
+<body>
+
+	<nav class="navbar navbar-expand-sm navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><b>Movie App</b></a>
+            <button class="navbar-btn"></button>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                       <a class="nav-link" href="#"><b>Movies</b></a>
+                    </li>
+                    <li class="nav-item">
+                       <a class="nav-link" href="#"><b>Tv Shows</b></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><b>People</b></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><b>More</b></a>
+                    </li>
+                </ul>
+
+                <div class="navbar-nav ml-auto mr-3" style="color: #fff;">
+                    <i class="fas fa-plus mr-4" ></i>
+                    <i class="fas fa-language mr-4" ></i>
+                    <i class="fas fa-bell mr-4"></i>
+                    <i class="fas fa-user mr-4"></i>
+                    <i class="fas fa-search mr-4"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+   <div class="dropdown text-center m-1">
+        <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Dropdown button
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+    </div>
+   
+ 
+   
+    <div class="jumbotron col-12">
+    	<div class="row">
+    		<div class="col-3" id="poster">
+    			
+    		</div>
+    		<div class="col-7 text-white">
+    			<h1 class="mt-4"><span id="movie-name"><b></b></span> (2021)</h1>
+    			<p><span id="release-date"></span> . <span id="genres"></span> . <span id="runtime"></span></p>
+    			<div class="icon mt-4">
+    				<p class="mr-3" style="display: inline-block;"><b>User Score</b></p>
+    				<i class="fas fa-list mr-3"></i>
+    				<i class="fas fa-heart mr-3"></i>
+    				<i class="fas fa-bookmark mr-3"></i>
+    				<i class="fas fa-star mr-3"></i>
+    				<i class="fas fa-play mr-1" style="border: none;"></i><p class="Play" style="display: inline-block;">Play Trailer</p>
+
+    				
+
+    			</div>
+    			<p id="tagline" style="color: #ddd;"></p>
+    			<h5>Overview</h5>
+    			<p id="overview"></p>
+    		</div>	
+
+    	</div>
+    </div>
+
+    <div class="container">
+    	<h4 class="mb-4">Recommended Movies</h4>
+		<div class="row" id="display-movies">
+
+		</div>
+	</div>
+
+
+
+    	
+    	
+   
+	
+
+</body>
+</html>
